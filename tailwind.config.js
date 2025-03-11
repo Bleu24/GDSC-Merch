@@ -16,5 +16,10 @@ export default {
             },
         },
     },
+    variants: {
+        extend: {
+            display: ['group-hover'], // ✅ Enables `group-hover:block`
+        },
+    },
     plugins: [],
 };
