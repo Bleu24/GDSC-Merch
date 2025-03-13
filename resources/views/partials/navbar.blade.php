@@ -70,12 +70,12 @@
 <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-lg p-6 w-96">
         <div class="flex justify-between items-center border-b pb-2">
-            <h2 class="text-lg font-semibold">Cart Summary</h2>
-            <button id="closeCart" class="text-gray-600 hover:text-red-500">&times;</button>
+            <h2 class="text-xl font-bold">Your Cart</h2>
+            <button id="closeCart" class="text-gray-500 hover:text-gray-700">&times;</button>
         </div>
         <ul id="cartItems" class="mt-4 space-y-4"></ul>
         <p class="mt-4 font-semibold">Total Price: <span id="cartTotalPrice">₱0.00</span></p>
-        <button class="mt-4 w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">Checkout</button>
+        <button id="checkoutButton" class="mt-4 w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">Checkout</button>
     </div>
 </div>
 
@@ -201,5 +201,33 @@
         });
 
         fetchCart();
+
+        // Handle checkout button click
+        const checkoutButton = document.getElementById('checkoutButton');
+        checkoutButton.addEventListener('click', function () {
+            fetch('/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    document.getElementById('cartModal').classList.add('hidden');
+                    fetchCart(); // Refresh the cart
+                } else {
+                    alert('There was an error during checkout.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Handle cart modal close button click
+        closeCart.addEventListener('click', function () {
+            document.getElementById('cartModal').classList.add('hidden');
+        });
     });
 </script>
