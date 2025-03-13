@@ -202,29 +202,6 @@
 
         fetchCart();
 
-        // Handle checkout button click
-        const checkoutButton = document.getElementById('checkoutButton');
-        checkoutButton.addEventListener('click', function () {
-            fetch('/checkout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    document.getElementById('cartModal').classList.add('hidden');
-                    fetchCart(); // Refresh the cart
-                } else {
-                    alert('There was an error during checkout.');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
-
         // Handle cart modal close button click
         closeCart.addEventListener('click', function () {
             document.getElementById('cartModal').classList.add('hidden');
