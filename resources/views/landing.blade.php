@@ -26,7 +26,7 @@
     @endif
 
     <section class="bg-blue-500 text-white text-center py-20">
-        <h2 class="text-4xl font-bold">Welcome to GDCS Merch Haven</h2>
+        <h2 class="text-4xl font-bold">Welcome to GDSC Merch Haven</h2>
         <p class="mt-4 text-lg">Your one-stop shop for exclusive and stylish merchandise.</p>
         <a href="#shop" class="mt-6 inline-block bg-white text-blue-500 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">Shop Now</a>
     </section>
