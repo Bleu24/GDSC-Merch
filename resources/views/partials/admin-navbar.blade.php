@@ -5,7 +5,7 @@
         <ul class="flex space-x-6">
             <li><a href="{{ route('admin.dashboard') }}" class="text-gray-300 hover:text-white">Dashboard</a></li>
             <li><a href="{{ route('admin.products.index') }}" class="text-gray-300 hover:text-white">Manage Products</a></li>
-            <li>
+            <li><a href="{{ route('admin.orders.index') }}" class="text-gray-300 hover:text-white">Manage Orders</a></li>
             <li><a href="/" class="text-gray-300 hover:text-white">Back to Site</a></li>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
