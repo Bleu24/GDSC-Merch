@@ -255,11 +255,11 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.message) {
-                    alert(data.message);
+                if (data.success && data.payment_link) {
+                    alert('Checkout successful!, Redirecting to payment gateway...');
                     document.getElementById('cartModal').classList.add('hidden');
                     fetchCart(); // Refresh the cart after checkout 
-                    // window.location.href = "/orders"; // Redirect to order history
+                    window.open(data.payment_link, '_blank'); // Open payment gateway in a new tab
                 } else {
                     alert('Checkout failed. Please try again.');
                 }
@@ -270,5 +270,5 @@
         window.addEventListener('error', function (event) {
             console.error('Global error caught:', event.error);
         });
-    });
+    }); 
 </script>
