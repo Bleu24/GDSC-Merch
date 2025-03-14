@@ -5,6 +5,9 @@
         <ul class="flex space-x-4">
             <li><a href="/" class="text-gray-600 hover:text-gray-900">Home</a></li>
             <li><a href="{{ route('products.index') }}" class="text-gray-600 hover:text-gray-900">Products</a></li>
+            @auth
+                <li><a href="{{ route('orders.index') }}" class="text-gray-600 hover:text-gray-900">Orders</a></li>
+            @endauth
             <li><a href="#about" class="text-gray-600 hover:text-gray-900">About</a></li>
             <li><a href="#contact" class="text-gray-600 hover:text-gray-900">Contact</a></li>
         </ul>
@@ -86,18 +89,20 @@
         const dropdownButton = document.getElementById("dropdownAvatarNameButton");
         const dropdownMenu = document.getElementById("dropdownAvatarName");
 
-        if (dropdownButton) {
-            dropdownButton.addEventListener("click", function(event) {
+        if (dropdownButton && dropdownMenu) {
+            dropdownButton.addEventListener("click", function (event) {
                 event.stopPropagation();
                 dropdownMenu.classList.toggle("hidden");
             });
-        }
 
-        document.addEventListener("click", function(event) {
-            if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                dropdownMenu.classList.add("hidden");
-            }
-        });
+            document.addEventListener("click", function (event) {
+                if (dropdownButton && dropdownMenu && 
+                    !dropdownButton.contains(event.target) && 
+                    !dropdownMenu.contains(event.target)) {
+                    dropdownMenu.classList.add("hidden");
+                }
+            });
+        }
 
         const cartButton = document.getElementById("cartButton");
         const cartModal = document.getElementById("cartModal");
@@ -109,18 +114,33 @@
         let cart = [];
 
         function fetchCart() {
-            fetch('/cart')
-                .then(response => response.json())
-                .then(data => {
+            fetch('/cart', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    // Developer handling for unauthorized requests
+                    console.error('User is unauthorized. Please log in.');
+                    // Optionally, redirect to login or display a message
+                    return [];
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.length !== undefined) {
                     cart = data.map(item => ({
                         id: item.id,
+                        product_id: item.product.id,
                         name: item.product.name,
-                        price: item.product.price,
+                        price: Number(item.product.price),
                         quantity: item.quantity
                     }));
                     updateCart();
-                })
-                .catch(error => console.error('Error fetching cart:', error));
+                }
+            })
+            .catch(error => console.error('Error fetching cart:', error));
         }
 
         function updateCart() {
@@ -150,6 +170,8 @@
         document.addEventListener("click", function (event) {
             if (event.target.classList.contains("addToCart")) {
                 const productId = event.target.dataset.id;
+                const productName = event.target.dataset.name;
+                console.log("Product ID:", productId, "Product Name:", productName);
 
                 fetch('/cart', {
                     method: "POST",
@@ -205,6 +227,48 @@
         // Handle cart modal close button click
         closeCart.addEventListener('click', function () {
             document.getElementById('cartModal').classList.add('hidden');
+        });
+
+        document.getElementById('checkoutButton').addEventListener('click', function () {
+            if (cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+
+            // Updated mapping for checkout payload:
+            let cartItems = cart.map(item => ({
+                product_id: item.product_id, // using the id directly from the cart item
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+            }));
+            
+            let cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            fetch('/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ items: cartItems, total: cartTotal })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    document.getElementById('cartModal').classList.add('hidden');
+                    fetchCart(); // Refresh the cart after checkout 
+                    // window.location.href = "/orders"; // Redirect to order history
+                } else {
+                    alert('Checkout failed. Please try again.');
+                }
+            })
+            .catch(error => console.error('Checkout error:', error));
+        });
+
+        window.addEventListener('error', function (event) {
+            console.error('Global error caught:', event.error);
         });
     });
 </script>
