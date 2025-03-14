@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Landing\LandingController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
 
 // Public Landing Page
 Route::get('/', function () {
@@ -37,6 +39,16 @@ Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->group(func
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
+
+     // ✅ Admin: View Orders
+     Route::get('/orders', [AdminController::class, 'orders'])->name('admin.orders.index');
+
+     // ✅ Admin: Update Order Status
+     Route::patch('/orders/{order}/status', [AdminController::class, 'updateOrderStatus'])->name('admin.orders.update');
+
+     // ✅ Admin: Delete Order
+     Route::delete('/orders/{order}', [AdminController::class, 'destroy'])->name('admin.orders.destroy');
+
 });
 
 
@@ -45,4 +57,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
     Route::patch('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 });
+
+
